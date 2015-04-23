@@ -43,6 +43,7 @@ For more details, see https://github.com/stringtree/stringtree-migrate
 
 The built-in unit tests require a running mysql instance and some environment variables or code to tell the tests how to connect to the database.
 
-### Related resources
+## Related resources
 
 * https://github.com/stringtree/stringtree-migrate
+* https://github.com/stringtree/stringtree-migrate-driver-testsuite
