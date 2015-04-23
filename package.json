@@ -11,7 +11,8 @@
     "mysql": "2.5.4"
   },
   "devDependencies": {
-    "tape": "^3.0.0"
+    "tape": "^3.0.0",
+    "stringtree-migrate-driver-testsuite": "~1.0.0"
   },
   "license": "Apache-2.0",
   "repository": {
