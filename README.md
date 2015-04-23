@@ -8,7 +8,7 @@ A MySQL driver for [stringtree-migrate](https://github.com/stringtree/stringtree
 
 ## Usage Example:
 ```js
- var credentials = {
+ var config = {
    host: 'localhost', port: 3306,
    database: 'test', user: 'uu', password: 'pp'
  };
@@ -21,7 +21,7 @@ A MySQL driver for [stringtree-migrate](https://github.com/stringtree/stringtree
    }
  ];
 
- var driver = require('stringtree-migrate-driver-mysql')(credentials);
+ var driver = require('stringtree-migrate-driver-mysql')(config);
  var migrate = require('stringtree-migrate')(driver, scripts);
  ...
  // ensure database is at level 23 or greater
@@ -41,7 +41,7 @@ For more details, see https://github.com/stringtree/stringtree-migrate
 
 ### Configuration
 
-The built-in unit tests require a running mysql instance and some environment variables or code to tell the tests how to connect to the database.
+The supplied _config_ parameter is passed direct to the _createPool_ method of [node-mysql](https://github.com/felixge/node-mysql/), so anything supported there is available. As a practical minimum, you should supply the connection details and credentials for your database, as shown in the example.
 
 ## Related resources
 

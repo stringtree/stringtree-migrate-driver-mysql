@@ -43,7 +43,7 @@ function db(sql, params, next) {
  * This one just drops the migrations table used by this driver
  */
 function setup(next) {
-  db("drop table st_migrate", function(err) {
+  db("drop table if exists st_migrate", function(err) {
     return next(err, driver);
   });
 }
