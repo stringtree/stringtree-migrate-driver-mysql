@@ -6,6 +6,8 @@ var util = require('util');
 var async = require('async');
 var mysql = require('mysql');
 
+var testsuite = require('stringtree-migrate-driver-testsuite');
+
 var credentials = {
   host     : process.env.MYSQL_TEST_HOST     || 'localhost',
   port     : process.env.MYSQL_TEST_PORT     || 3306,
@@ -17,7 +19,7 @@ var driver = require('../stringtree-migrate-driver-mysql')(credentials);
 
 var dname = "mysql";
 
-// general purpose db wrapper to use when verifying what the driver has (or has not) done
+/** general purpose db wrapper to use when verifying what the driver has (or has not) done */
 function db(sql, params, next) {
   var connection = mysql.createConnection(credentials);
   connection.connect(function(err) {
@@ -37,77 +39,39 @@ function db(sql, params, next) {
   });
 }
 
+/** a function to pass to the conformance tests, so they can reset the db before each test
+ * This one just drops the migrations table used by this driver
+ */
 function setup(next) {
-  db("show tables", function(err, tables) {
-    if (err) return next(err);
-    if (tables && tables.length > 0) {
-      async.forEach(tables, function(table, done) {
-        var tname = table['Tables_in_' + credentials.database];
-        var sql = "drop table " + tname;
-        db(sql, function(err) {
-          done(err);
-        });
-      }, function(err) {
-        return next(err, driver);
-      });
-    } else {
-      return next(null, driver);
-    }
+  db("drop table st_migrate", function(err) {
+    return next(err, driver);
   });
 }
 
-test('(' + dname + ') open and close database', function(t) {
+/** run the standard conformance tests against this driver */
+testsuite(driver, 'MySQL', setup);
+
+/** test the driver-specific bits */
+test('execute some sql', function(t) {
+  t.plan(7);
   driver.open(function(err) {
-    driver.close(function(err) {
-      t.end();
-    });
-  });
-});
-
-test('(' + dname + ') open database for following tests', function(t) {
-  driver.open(function(err) {
-    t.end();
-  });
-});
-
-test('(' + dname + ') check/create migration table', function(t) {
-  t.plan(5);
-  setup(function(err, driver) {
-    driver.check(function(err, present) {
-      t.error(err, 'check should not error');
-      t.notok(present, "migration table should not be present");
-      driver.create(function(err) {
-        t.error(err, 'create should not error');
-        driver.check(function(err, present) {
-          t.error(err, 'check should not error');
-          t.ok(present, "migration table should be present now");
-        });
-      });
-    });
-  });
-});
-
-test('(' + dname + ') read/set current level', function(t) {
-  t.plan(5);
-  setup(function(err, driver) {
-    driver.create(function(err) {
-      driver.current(function(err, level) {
-        t.error(err, 'current should not error');
-        t.notok(level, "current level should start undefined");
-        driver.update(2, function(err) {
-          t.error(err, 'update should not error');
-          driver.current(function(err, level) {
-            t.error(err, 'current should not error');
-            t.equal(level, 2, "curret should report new level");
+    t.error(err, 'open should not error');
+    driver.execute('create table st_zz ( name varchar(20) )', function(err) {
+      t.error(err, 'execute should not error');
+      driver.execute('insert into st_zz ( name ) values ( "Frank" )', function(err) {
+        t.error(err, 'execute should not error');
+        db('select name from st_zz', function(err, values) {
+          t.error(err, 'db select should not error');
+          t.equal(values[0].name, 'Frank', 'db tools should find the correct stored value');
+          db('drop table st_zz', function(err) {
+            t.error(err, 'db drop table should not error');
+            driver.close(function(err) {
+              t.error(err, 'close should not error');
+              t.end();
+            });
           });
         });
       });
     });
-  });
-});
-
-test('(' + dname + ') close database', function(t) {
-  driver.close(function(err) {
-    t.end();
   });
 });

@@ -36,10 +36,10 @@ module.exports = function(credentials) {
       if (!self.is_open) {
         self.is_open = true;
         self.pool = mysql.createPool(credentials);
-        next(null, self.pool);
+        if (next) next(null, self.pool);
       } else {
         console.log('mysql.open: pool already created');
-        next();
+        if (next) next();
       }
     },
     close: function(next) {
@@ -48,11 +48,11 @@ module.exports = function(credentials) {
         self.is_open = false;
         self.pool.end(function(err) {
           delete self.pool;
-          next(err);
+          if (next) next(err);
         });
       } else {
         console.log('mysql.close: pool already deleted');
-        next();
+        if (next) next();
       }
     },
 
@@ -74,7 +74,7 @@ module.exports = function(credentials) {
      *    a system timestamp, as using a timestamp as a migration 'level' is a common pattern
      */
 
-    _check_sql: "show tables like 'migrations'",
+    _check_sql: "show tables like 'st_migrate'",
     check: function(next) {
       this.execute(this._check_sql, function(err, tables) {
         if (err) {
@@ -87,12 +87,12 @@ module.exports = function(credentials) {
       });
     },
 
-    _create_sql: "create table migrations ( level bigint )",
+    _create_sql: "create table st_migrate ( level bigint )",
     create: function(next) {
       this.execute(this._create_sql, next);
     },
 
-    _current_sql: "select level from migrations order by level desc limit 1",
+    _current_sql: "select level from st_migrate order by level desc limit 1",
     current: function(next) {
       this.execute(this._current_sql, function(err, levels) {
         var current = levels[0] || { level: 0 };
@@ -100,7 +100,7 @@ module.exports = function(credentials) {
       });
     },
 
-    _update_sql: "insert into migrations (level) values (?)",
+    _update_sql: "insert into st_migrate (level) values (?)",
     update: function(level, next) {
       this.execute(this._update_sql, [ level ], next);
     },
