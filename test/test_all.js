@@ -87,6 +87,25 @@ test('(' + dname + ') check/create migration table', function(t) {
   });
 });
 
+test('(' + dname + ') read/set current level', function(t) {
+  t.plan(5);
+  setup(function(err, driver) {
+    driver.create(function(err) {
+      driver.current(function(err, level) {
+        t.error(err, 'current should not error');
+        t.notok(level, "current level should start undefined");
+        driver.update(2, function(err) {
+          t.error(err, 'update should not error');
+          driver.current(function(err, level) {
+            t.error(err, 'current should not error');
+            t.equal(level, 2, "curret should report new level");
+          });
+        });
+      });
+    });
+  });
+});
+
 test('(' + dname + ') close database', function(t) {
   driver.close(function(err) {
     t.end();
