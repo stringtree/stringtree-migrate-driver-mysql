@@ -47,8 +47,9 @@ module.exports = function(credentials) {
       if (self.is_open) {
         self.is_open = false;
         self.pool.end(function(err) {
+          if (err) return next(err);
           delete self.pool;
-          if (next) next(err);
+          if (next) next();
         });
       } else {
         console.log('mysql.close: pool already deleted');
@@ -95,6 +96,7 @@ module.exports = function(credentials) {
     _current_sql: "select level from st_migrate order by level desc limit 1",
     current: function(next) {
       this.execute(this._current_sql, function(err, levels) {
+        if (err) return next(err);
         var current = levels[0] || { level: 0 };
         next(null, current.level);
       });
@@ -118,6 +120,7 @@ module.exports = function(credentials) {
     execute: function(sql, params, next) {
       var ret;
       this.pool.getConnection(function(err, connection) {
+        if (err) return next(err);
         if ('function' == typeof(params)) {
           next = params;
           connection.query(sql, function(err, rows) {
