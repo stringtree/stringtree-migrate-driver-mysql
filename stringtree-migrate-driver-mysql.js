@@ -120,9 +120,9 @@ module.exports = function(credentials) {
     execute: function(sql, params, next) {
       var ret;
       this.pool.getConnection(function(err, connection) {
-        if (err) return next(err);
         if ('function' == typeof(params)) {
           next = params;
+          if (err) return next(err);
           connection.query(sql, function(err, rows) {
             next(err, rows);
             connection.release();
