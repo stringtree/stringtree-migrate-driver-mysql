@@ -19,7 +19,7 @@ test('raw open then close', function(t) {
   var connection = mysql.createConnection(credentials);
   connection.connect(function(err) {
     if (err) throw(err);
-    console.log('connected as id ' + connection.threadId);
+//    console.log('connected as id ' + connection.threadId);
     connection.end();
     t.end();
   });
@@ -29,7 +29,7 @@ test('raw open then close again', function(t) {
   var connection = mysql.createConnection(credentials);
   connection.connect(function(err) {
     if (err) throw(err);
-    console.log('connected as id ' + connection.threadId);
+//    console.log('connected as id ' + connection.threadId);
     connection.end();
     t.end();
   });
@@ -44,7 +44,7 @@ test('create pool', function(t) {
 test('pool open then close', function(t) {
   pool.getConnection(function(err, connection) {
     if (err) throw(err);
-    console.log('connected as id ' + connection.threadId);
+//    console.log('connected as id ' + connection.threadId);
     connection.release();
     t.end();
   });
@@ -53,7 +53,7 @@ test('pool open then close', function(t) {
 test('pool open then close again', function(t) {
   pool.getConnection(function(err, connection) {
     if (err) throw(err);
-    console.log('connected as id ' + connection.threadId);
+//    console.log('connected as id ' + connection.threadId);
     connection.release();
     t.end();
   });
